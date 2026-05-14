@@ -6,4 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./errorResponse";
+export * from "./flashcardItem";
 export * from "./healthStatus";
+export * from "./mCQItem";
+export * from "./mCQItemDifficulty";
+export * from "./processNotesBody";
+export * from "./processNotesResult";
+export * from "./summaryData";
+export * from "./vivaItem";
+export * from "./vivaItemLevel";

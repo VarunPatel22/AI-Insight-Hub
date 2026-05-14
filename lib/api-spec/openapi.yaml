@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: ai
+    description: AI processing operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /ai/process:
+    post:
+      operationId: processNotes
+      tags: [ai]
+      summary: Process notes with AI
+      description: Generates summary, MCQs, flashcards, and viva questions from notes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcessNotesBody"
+      responses:
+        "200":
+          description: Processed notes result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcessNotesResult"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +66,91 @@ components:
           type: string
       required:
         - status
-
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    ProcessNotesBody:
+      type: object
+      required: [noteText]
+      properties:
+        noteText:
+          type: string
+        subject:
+          type: string
+          default: General
+    SummaryData:
+      type: object
+      required: [bullets, keywords, examNotes, simpleExplanation]
+      properties:
+        bullets:
+          type: array
+          items:
+            type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        examNotes:
+          type: string
+        simpleExplanation:
+          type: string
+    MCQItem:
+      type: object
+      required: [question, options, correctIndex, explanation, difficulty]
+      properties:
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        correctIndex:
+          type: integer
+        explanation:
+          type: string
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+    FlashcardItem:
+      type: object
+      required: [question, answer]
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+    VivaItem:
+      type: object
+      required: [question, answer, level]
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+    ProcessNotesResult:
+      type: object
+      required: [title, summary, mcqs, flashcards, vivaQuestions]
+      properties:
+        title:
+          type: string
+        summary:
+          $ref: "#/components/schemas/SummaryData"
+        mcqs:
+          type: array
+          items:
+            $ref: "#/components/schemas/MCQItem"
+        flashcards:
+          type: array
+          items:
+            $ref: "#/components/schemas/FlashcardItem"
+        vivaQuestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/VivaItem"

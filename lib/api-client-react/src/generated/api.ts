@@ -5,18 +5,26 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  ErrorResponse,
+  HealthStatus,
+  ProcessNotesBody,
+  ProcessNotesResult,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -99,3 +107,90 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Generates summary, MCQs, flashcards, and viva questions from notes
+ * @summary Process notes with AI
+ */
+export const getProcessNotesUrl = () => {
+  return `/api/ai/process`;
+};
+
+export const processNotes = async (
+  processNotesBody: ProcessNotesBody,
+  options?: RequestInit,
+): Promise<ProcessNotesResult> => {
+  return customFetch<ProcessNotesResult>(getProcessNotesUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(processNotesBody),
+  });
+};
+
+export const getProcessNotesMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof processNotes>>,
+    TError,
+    { data: BodyType<ProcessNotesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof processNotes>>,
+  TError,
+  { data: BodyType<ProcessNotesBody> },
+  TContext
+> => {
+  const mutationKey = ["processNotes"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof processNotes>>,
+    { data: BodyType<ProcessNotesBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return processNotes(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ProcessNotesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof processNotes>>
+>;
+export type ProcessNotesMutationBody = BodyType<ProcessNotesBody>;
+export type ProcessNotesMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Process notes with AI
+ */
+export const useProcessNotes = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof processNotes>>,
+    TError,
+    { data: BodyType<ProcessNotesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof processNotes>>,
+  TError,
+  { data: BodyType<ProcessNotesBody> },
+  TContext
+> => {
+  return useMutation(getProcessNotesMutationOptions(options));
+};

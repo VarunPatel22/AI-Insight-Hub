@@ -14,3 +14,46 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Generates summary, MCQs, flashcards, and viva questions from notes
+ * @summary Process notes with AI
+ */
+export const processNotesBodySubjectDefault = `General`;
+
+export const ProcessNotesBody = zod.object({
+  noteText: zod.string(),
+  subject: zod.string().default(processNotesBodySubjectDefault),
+});
+
+export const ProcessNotesResponse = zod.object({
+  title: zod.string(),
+  summary: zod.object({
+    bullets: zod.array(zod.string()),
+    keywords: zod.array(zod.string()),
+    examNotes: zod.string(),
+    simpleExplanation: zod.string(),
+  }),
+  mcqs: zod.array(
+    zod.object({
+      question: zod.string(),
+      options: zod.array(zod.string()),
+      correctIndex: zod.number(),
+      explanation: zod.string(),
+      difficulty: zod.enum(["easy", "medium", "hard"]),
+    }),
+  ),
+  flashcards: zod.array(
+    zod.object({
+      question: zod.string(),
+      answer: zod.string(),
+    }),
+  ),
+  vivaQuestions: zod.array(
+    zod.object({
+      question: zod.string(),
+      answer: zod.string(),
+      level: zod.enum(["beginner", "intermediate", "advanced"]),
+    }),
+  ),
+});

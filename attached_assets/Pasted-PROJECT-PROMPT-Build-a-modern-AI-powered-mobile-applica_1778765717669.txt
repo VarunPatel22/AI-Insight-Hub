@@ -1,0 +1,162 @@
+PROJECT PROMPT
+
+Build a modern AI-powered mobile application called “NoteGenius AI” designed for students to transform long study notes into smart learning materials instantly.
+
+The app should have a clean, modern, student-focused UI with fast performance and smooth animations. The primary goal is to help students study faster using AI.
+
+The app must support:
+
+Text notes
+PDF uploads
+Image-to-text notes (OCR)
+AI-generated summaries
+MCQ generation
+Viva questions
+Flashcards
+Offline note saving
+
+The app should be optimized for Android and later scalable for iOS.
+
+CORE FEATURES
+1. AI Notes Summarization
+
+Users can:
+
+Paste large notes
+Upload PDFs
+Upload images of handwritten or printed notes
+
+The AI should:
+
+Convert long paragraphs into short bullet-point summaries
+Highlight important topics
+Extract keywords
+Generate “exam-focused” notes
+Provide short, medium, and detailed summary modes
+
+Summary styles:
+
+Bullet Points
+Exam Notes
+One-Day-Before-Exam Notes
+Simple Explanation Mode
+2. MCQ Generator
+
+After summarizing notes, AI should generate:
+
+Multiple-choice questions
+4 options per question
+Correct answer indication
+Difficulty levels:
+Easy
+Medium
+Hard
+
+Features:
+
+Regenerate questions
+Save quizzes
+Practice mode
+3. Viva Question Generator
+
+AI should generate:
+
+Common viva questions
+Technical interview-style questions
+Short answers
+Important oral questions
+
+Modes:
+
+Beginner
+Intermediate
+Advanced
+4. Flashcard Generator
+
+AI converts notes into:
+
+Question-answer flashcards
+Swipeable cards
+Revision mode
+Memory practice mode
+5. OCR Scanner
+
+Users can:
+
+Take photo from camera
+Upload image from gallery
+
+The app should:
+
+Extract text using OCR
+Support handwritten and printed notes
+Clean extracted text automatically
+6. Offline Notes Storage
+
+Users can:
+
+Save notes offline
+Save summaries
+Save MCQs
+Save flashcards
+
+Features:
+
+Local database storage
+Search saved notes
+Categorize subjects
+7. Smart Study Modes
+Quick Revision Mode
+
+Converts notes into:
+
+Important formulas
+Key points
+Last-minute revision notes
+Exam Preparation Mode
+
+Generates:
+
+Important questions
+Frequently asked concepts
+Predicted viva questions
+UI/UX REQUIREMENTS
+
+The UI should be:
+
+Modern
+Minimal
+Student-focused
+Fast and responsive
+Dark mode enabled
+Smooth animations
+
+Design inspiration:
+
+Notion
+Duolingo
+ChatGPT
+Google Gemini
+
+Screens required:
+
+Splash Screen
+Login/Signup
+Home Dashboard
+Upload Notes Screen
+AI Processing Screen
+Summary Result Screen
+MCQ Practice Screen
+Flashcard Screen
+Saved Notes Screen
+Profile & Settings
+HOME DASHBOARD
+
+Dashboard should contain:
+
+“Upload Notes” button
+Recent Notes
+AI Tools section
+Daily Study Streak
+Quick Actions
+Subject Categories

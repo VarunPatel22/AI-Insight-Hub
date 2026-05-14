@@ -1,36 +1,54 @@
-# [Project name]
+# NoteGenius AI
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+An AI-powered mobile app that transforms study notes into smart learning materials — summaries, MCQs, flashcards, and viva questions — in seconds.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/notegenius run dev` — run the Expo mobile app
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY` (auto-set via Replit AI Integrations)
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Mobile: Expo (React Native), expo-router, @tanstack/react-query
 - API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
+- AI: OpenAI GPT-5.4 via Replit AI Integrations
+- Storage: AsyncStorage (device-local note persistence)
+- Validation: Zod, drizzle-zod
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- Mobile app: `artifacts/notegenius/`
+- API server: `artifacts/api-server/`
+- AI route: `artifacts/api-server/src/routes/ai.ts`
+- OpenAPI spec: `lib/api-spec/openapi.yaml`
+- DB schema: `lib/db/src/schema/index.ts`
+- Note context + types: `artifacts/notegenius/context/NotesContext.tsx`
+- Colors/theme: `artifacts/notegenius/constants/colors.ts`
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- All note data is stored locally in AsyncStorage (offline-first); no user database needed
+- Single AI endpoint (`POST /api/ai/process`) generates all content types in one call (summary, MCQs, flashcards, viva)
+- GPT-5.4 with JSON-mode output generates structured study materials
+- Dark-first color theme (#0B0B1A background) with indigo/violet primary (#6C63FF) and teal accent (#00C9A7)
+- Expo Router file-based navigation with 4 bottom tabs + stack screens for each AI output type
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Home**: Dashboard with streak, quick upload CTA, recent notes, AI tools grid, subject categories
+- **Upload**: Paste text or capture image; select subject; AI processes into all materials at once
+- **Summary**: 4 view modes (bullets, exam notes, simple explanation, keywords)
+- **MCQ Practice**: Filterable by difficulty; score tracking; answer explanations
+- **Flashcards**: Flip animation; swipe-style known/unknown tracking
+- **Viva Questions**: Expandable Q&A; level filter (beginner/intermediate/advanced)
+- **Notes**: Searchable, filterable list of all saved notes
+- **Profile**: Stats, study streak, data management
 
 ## User preferences
 
@@ -38,8 +56,12 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Always run `pnpm --filter @workspace/api-spec run codegen` after changing `lib/api-spec/openapi.yaml`
+- The AI processing call can take 10-20 seconds; the upload screen shows an animated progress UI
+- Expo runs on web via preview pane — safe area insets differ from native device
+- `response_format` JSON mode prompt: system prompt must explicitly request raw JSON with no markdown
 
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- See the `expo` skill for mobile architecture patterns

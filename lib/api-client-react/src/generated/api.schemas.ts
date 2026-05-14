@@ -8,3 +8,63 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface ErrorResponse {
+  error: string;
+}
+
+export interface ProcessNotesBody {
+  noteText: string;
+  subject?: string;
+}
+
+export interface SummaryData {
+  bullets: string[];
+  keywords: string[];
+  examNotes: string;
+  simpleExplanation: string;
+}
+
+export type MCQItemDifficulty =
+  (typeof MCQItemDifficulty)[keyof typeof MCQItemDifficulty];
+
+export const MCQItemDifficulty = {
+  easy: "easy",
+  medium: "medium",
+  hard: "hard",
+} as const;
+
+export interface MCQItem {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  difficulty: MCQItemDifficulty;
+}
+
+export interface FlashcardItem {
+  question: string;
+  answer: string;
+}
+
+export type VivaItemLevel = (typeof VivaItemLevel)[keyof typeof VivaItemLevel];
+
+export const VivaItemLevel = {
+  beginner: "beginner",
+  intermediate: "intermediate",
+  advanced: "advanced",
+} as const;
+
+export interface VivaItem {
+  question: string;
+  answer: string;
+  level: VivaItemLevel;
+}
+
+export interface ProcessNotesResult {
+  title: string;
+  summary: SummaryData;
+  mcqs: MCQItem[];
+  flashcards: FlashcardItem[];
+  vivaQuestions: VivaItem[];
+}
