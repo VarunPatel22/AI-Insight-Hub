@@ -1,6 +1,5 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
   description: API specification
@@ -18,7 +17,6 @@ paths:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -31,7 +29,6 @@ paths:
       operationId: processNotes
       tags: [ai]
       summary: Process notes with AI
-      description: Generates summary, MCQs, flashcards, and viva questions from notes
       requestBody:
         required: true
         content:
@@ -51,8 +48,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: Server error
+  /ai/analyze-pyq:
+    post:
+      operationId: analyzePyq
+      tags: [ai]
+      summary: Analyze previous year question papers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzePyqBody"
+      responses:
+        "200":
+          description: PYQ analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PYQAnalysisResult"
+        "400":
+          description: Invalid input
           content:
             application/json:
               schema:
@@ -64,15 +79,13 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
     ErrorResponse:
       type: object
       properties:
         error:
           type: string
-      required:
-        - error
+      required: [error]
     ProcessNotesBody:
       type: object
       required: [noteText]
@@ -82,6 +95,26 @@ components:
         subject:
           type: string
           default: General
+    TopicSummaryItem:
+      type: object
+      required: [title, summary, keyPoints, definitions, formulas]
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+        keyPoints:
+          type: array
+          items:
+            type: string
+        definitions:
+          type: array
+          items:
+            type: string
+        formulas:
+          type: array
+          items:
+            type: string
     SummaryData:
       type: object
       required: [bullets, keywords, examNotes, simpleExplanation]
@@ -136,12 +169,16 @@ components:
           enum: [beginner, intermediate, advanced]
     ProcessNotesResult:
       type: object
-      required: [title, summary, mcqs, flashcards, vivaQuestions]
+      required: [title, summary, mcqs, flashcards, vivaQuestions, topics]
       properties:
         title:
           type: string
         summary:
           $ref: "#/components/schemas/SummaryData"
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/TopicSummaryItem"
         mcqs:
           type: array
           items:
@@ -154,3 +191,71 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/VivaItem"
+    AnalyzePyqBody:
+      type: object
+      required: [paperText]
+      properties:
+        paperText:
+          type: string
+        subject:
+          type: string
+        fileName:
+          type: string
+    PYQQuestion:
+      type: object
+      required: [question, count, avgMarks, importance, topic]
+      properties:
+        question:
+          type: string
+        count:
+          type: integer
+        avgMarks:
+          type: number
+        importance:
+          type: string
+          enum: [very_important, high_probability, most_repeated, frequently_asked]
+        topic:
+          type: string
+    PYQTopic:
+      type: object
+      required: [topic, repetitions, avgMarks, importance]
+      properties:
+        topic:
+          type: string
+        repetitions:
+          type: integer
+        avgMarks:
+          type: number
+        importance:
+          type: string
+    PYQTopQuestion:
+      type: object
+      required: [question, type, marks]
+      properties:
+        question:
+          type: string
+        type:
+          type: string
+          enum: [long, short, definition]
+        marks:
+          type: integer
+    PYQAnalysisResult:
+      type: object
+      required: [repeatedQuestions, importantTopics, examPredictions, topQuestions]
+      properties:
+        repeatedQuestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PYQQuestion"
+        importantTopics:
+          type: array
+          items:
+            $ref: "#/components/schemas/PYQTopic"
+        examPredictions:
+          type: array
+          items:
+            type: string
+        topQuestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PYQTopQuestion"

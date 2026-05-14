@@ -18,6 +18,14 @@ export interface ProcessNotesBody {
   subject?: string;
 }
 
+export interface TopicSummaryItem {
+  title: string;
+  summary: string;
+  keyPoints: string[];
+  definitions: string[];
+  formulas: string[];
+}
+
 export interface SummaryData {
   bullets: string[];
   keywords: string[];
@@ -64,7 +72,61 @@ export interface VivaItem {
 export interface ProcessNotesResult {
   title: string;
   summary: SummaryData;
+  topics: TopicSummaryItem[];
   mcqs: MCQItem[];
   flashcards: FlashcardItem[];
   vivaQuestions: VivaItem[];
+}
+
+export interface AnalyzePyqBody {
+  paperText: string;
+  subject?: string;
+  fileName?: string;
+}
+
+export type PYQQuestionImportance =
+  (typeof PYQQuestionImportance)[keyof typeof PYQQuestionImportance];
+
+export const PYQQuestionImportance = {
+  very_important: "very_important",
+  high_probability: "high_probability",
+  most_repeated: "most_repeated",
+  frequently_asked: "frequently_asked",
+} as const;
+
+export interface PYQQuestion {
+  question: string;
+  count: number;
+  avgMarks: number;
+  importance: PYQQuestionImportance;
+  topic: string;
+}
+
+export interface PYQTopic {
+  topic: string;
+  repetitions: number;
+  avgMarks: number;
+  importance: string;
+}
+
+export type PYQTopQuestionType =
+  (typeof PYQTopQuestionType)[keyof typeof PYQTopQuestionType];
+
+export const PYQTopQuestionType = {
+  long: "long",
+  short: "short",
+  definition: "definition",
+} as const;
+
+export interface PYQTopQuestion {
+  question: string;
+  type: PYQTopQuestionType;
+  marks: number;
+}
+
+export interface PYQAnalysisResult {
+  repeatedQuestions: PYQQuestion[];
+  importantTopics: PYQTopic[];
+  examPredictions: string[];
+  topQuestions: PYQTopQuestion[];
 }

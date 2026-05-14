@@ -8,7 +8,6 @@
 import * as zod from "zod";
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
@@ -16,7 +15,6 @@ export const HealthCheckResponse = zod.object({
 });
 
 /**
- * Generates summary, MCQs, flashcards, and viva questions from notes
  * @summary Process notes with AI
  */
 export const processNotesBodySubjectDefault = `General`;
@@ -34,6 +32,15 @@ export const ProcessNotesResponse = zod.object({
     examNotes: zod.string(),
     simpleExplanation: zod.string(),
   }),
+  topics: zod.array(
+    zod.object({
+      title: zod.string(),
+      summary: zod.string(),
+      keyPoints: zod.array(zod.string()),
+      definitions: zod.array(zod.string()),
+      formulas: zod.array(zod.string()),
+    }),
+  ),
   mcqs: zod.array(
     zod.object({
       question: zod.string(),
@@ -54,6 +61,48 @@ export const ProcessNotesResponse = zod.object({
       question: zod.string(),
       answer: zod.string(),
       level: zod.enum(["beginner", "intermediate", "advanced"]),
+    }),
+  ),
+});
+
+/**
+ * @summary Analyze previous year question papers
+ */
+export const AnalyzePyqBody = zod.object({
+  paperText: zod.string(),
+  subject: zod.string().optional(),
+  fileName: zod.string().optional(),
+});
+
+export const AnalyzePyqResponse = zod.object({
+  repeatedQuestions: zod.array(
+    zod.object({
+      question: zod.string(),
+      count: zod.number(),
+      avgMarks: zod.number(),
+      importance: zod.enum([
+        "very_important",
+        "high_probability",
+        "most_repeated",
+        "frequently_asked",
+      ]),
+      topic: zod.string(),
+    }),
+  ),
+  importantTopics: zod.array(
+    zod.object({
+      topic: zod.string(),
+      repetitions: zod.number(),
+      avgMarks: zod.number(),
+      importance: zod.string(),
+    }),
+  ),
+  examPredictions: zod.array(zod.string()),
+  topQuestions: zod.array(
+    zod.object({
+      question: zod.string(),
+      type: zod.enum(["long", "short", "definition"]),
+      marks: zod.number(),
     }),
   ),
 });

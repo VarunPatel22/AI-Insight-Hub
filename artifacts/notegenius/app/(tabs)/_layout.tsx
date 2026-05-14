@@ -15,13 +15,13 @@ function NativeTabLayout() {
         <Icon sf={{ default: "house", selected: "house.fill" }} />
         <Label>Home</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="notes">
-        <Icon sf={{ default: "note.text", selected: "note.text" }} />
-        <Label>Notes</Label>
+      <NativeTabs.Trigger name="subjects">
+        <Icon sf={{ default: "book", selected: "book.fill" }} />
+        <Label>Subjects</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="tools">
-        <Icon sf={{ default: "sparkles", selected: "sparkles" }} />
-        <Label>AI Tools</Label>
+      <NativeTabs.Trigger name="pyq">
+        <Icon sf={{ default: "doc.text", selected: "doc.text.fill" }} />
+        <Label>PYQ</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <Icon sf={{ default: "person", selected: "person.fill" }} />
@@ -73,17 +73,17 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="notes"
+        name="subjects"
         options={{
-          title: "Notes",
-          tabBarIcon: ({ color, size }) => <Feather name="book-open" size={size} color={color} />,
+          title: "Subjects",
+          tabBarIcon: ({ color, size }) => <Feather name="book" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="tools"
+        name="pyq"
         options={{
-          title: "AI Tools",
-          tabBarIcon: ({ color, size }) => <Feather name="zap" size={size} color={color} />,
+          title: "PYQ",
+          tabBarIcon: ({ color, size }) => <Feather name="file-text" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -93,6 +93,8 @@ function ClassicTabLayout() {
           tabBarIcon: ({ color, size }) => <Feather name="user" size={size} color={color} />,
         }}
       />
+      <Tabs.Screen name="notes" options={{ href: null }} />
+      <Tabs.Screen name="tools" options={{ href: null }} />
     </Tabs>
   );
 }
@@ -103,3 +105,5 @@ export default function TabLayout() {
   }
   return <ClassicTabLayout />;
 }
+
+const styles = StyleSheet.create({});

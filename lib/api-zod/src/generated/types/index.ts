@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./analyzePyqBody";
 export * from "./errorResponse";
 export * from "./flashcardItem";
 export * from "./healthStatus";
@@ -13,6 +14,13 @@ export * from "./mCQItem";
 export * from "./mCQItemDifficulty";
 export * from "./processNotesBody";
 export * from "./processNotesResult";
+export * from "./pYQAnalysisResult";
+export * from "./pYQQuestion";
+export * from "./pYQQuestionImportance";
+export * from "./pYQTopic";
+export * from "./pYQTopQuestion";
+export * from "./pYQTopQuestionType";
 export * from "./summaryData";
+export * from "./topicSummaryItem";
 export * from "./vivaItem";
 export * from "./vivaItemLevel";

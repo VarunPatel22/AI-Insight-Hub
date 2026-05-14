@@ -1,0 +1,272 @@
+Update the existing AI-powered student productivity application “NoteGenius AI” with advanced document intelligence, smart subject organization, and previous-year-paper analysis features.
+
+The application should evolve from a simple notes summarizer into a complete AI study ecosystem for students.
+
+The app must support intelligent parsing and summarization of uploaded educational files while maintaining fast performance, modern UI/UX, and scalable architecture.
+
+NEW MAJOR FEATURE UPDATE
+1. Advanced File Upload & AI Processing System
+
+The app should allow users to upload educational documents and automatically process them using AI.
+
+Supported file types:
+
+PDF (.pdf)
+PowerPoint (.pptx)
+Word Documents (.docx)
+Text Files (.txt)
+Images (.png, .jpg, .jpeg)
+
+Maximum file size:
+
+5MB per file
+
+If the uploaded file exceeds 5MB:
+
+Show a clean warning message
+Suggest compressing the file
+Prevent upload
+
+The system should:
+
+Extract all readable text
+Detect headings and subtopics
+Preserve topic hierarchy
+Process notes section-wise
+Automatically identify chapters and important concepts
+2. Topic-Wise Smart Summarization
+
+Instead of generating one large summary, the AI must create:
+
+Structured Topic-Wise Summaries
+
+Example:
+
+Chapter 1 → Introduction
+Chapter 2 → Operating System Concepts
+Chapter 3 → Networking Basics
+
+Each topic should contain:
+
+Short summary
+Important points
+Key definitions
+Exam-focused notes
+Important formulas (if applicable)
+
+The app should intelligently detect:
+
+Headings
+Subheadings
+Bullet points
+Numbered topics
+
+Summary Modes:
+
+Quick Summary
+Detailed Summary
+Exam Revision Notes
+One-Night-Before-Exam Notes
+Simplified Explanation
+3. Large File Smart AI Processing
+
+If a file contains large amounts of educational content, the AI should automatically generate:
+
+Smart MCQs
+
+Generate:
+
+Topic-wise MCQs
+Concept-based questions
+Difficulty-based questions
+Repeated-concept questions
+Smart Flashcards
+
+Generate:
+
+Topic-wise flashcards
+Definition cards
+Formula cards
+Memory-based revision cards
+Smart Viva Questions
+
+Generate:
+
+Most probable viva questions
+Technical oral questions
+Frequently asked university questions
+Topic-specific viva preparation
+
+The AI should prioritize:
+
+Frequently repeated concepts
+Definitions
+Important theoretical topics
+Practical-based questions
+4. Subject Creation & Organization System
+
+While uploading files, users must first create or select a subject.
+
+Example:
+
+Operating System
+Python Programming
+Cyber Security
+DBMS
+Data Structures
+
+Each uploaded file should be linked to its subject.
+
+Inside each subject:
+
+Uploaded notes
+AI summaries
+Flashcards
+MCQs
+Viva questions
+Previous year papers
+Saved revision notes
+
+The subject dashboard should display:
+
+Total notes
+Study progress
+Revision count
+Important topics
+Exam readiness indicator
+5. Previous Year Paper Intelligence System (MOST IMPORTANT FEATURE)
+
+Add a dedicated module called:
+
+“PYQ Analyzer”
+
+Users can upload:
+
+Previous year papers
+University exam papers
+Internal exam papers
+Question banks
+
+Supported formats:
+
+PDF
+DOCX
+Images
+
+Maximum file size:
+
+5MB
+PYQ AI ANALYSIS FEATURES
+
+The AI should:
+
+Detect Repeated Questions
+
+Automatically identify:
+
+Frequently repeated questions
+Frequently repeated topics
+Important theory concepts
+Mark Important Questions
+
+Questions repeated multiple times should be labeled as:
+
+Very Important
+High Probability
+Most Repeated
+Frequently Asked
+Marks-Based Weightage Analysis
+
+The AI should:
+
+Detect marks assigned to questions
+Identify high-weightage chapters
+Generate importance ranking
+
+Example:
+
+Topic	Repetition	Avg Marks	Importance
+Deadlock	5 times	8 Marks	Very Important
+CPU Scheduling	3 times	10 Marks	High Priority
+Smart Exam Prediction
+
+The AI should predict:
+
+Most probable upcoming questions
+Important chapters
+High-scoring topics
+Frequently asked viva questions
+Generate “Most Important Questions” List
+
+Create:
+
+Top 10 important questions
+Most repeated definitions
+Most repeated long questions
+Most repeated short questions
+6. Intelligent Search System
+
+Add global search functionality:
+
+Search topics
+Search summaries
+Search MCQs
+Search flashcards
+Search PYQs
+Search formulas
+
+Include:
+
+Smart filters
+Subject-wise filtering
+Topic-wise filtering
+7. Offline AI Study Vault
+
+Users should be able to save:
+
+Files
+Summaries
+MCQs
+Flashcards
+Viva questions
+PYQ analysis
+
+Offline support:
+
+SQLite database
+Fast local retrieval
+Subject-wise storage
+8. AI Study Dashboard
+
+The dashboard should show:
+
+Study Statistics
+Total uploaded files
+Total summaries generated
+MCQs practiced
+Flashcards reviewed
+Study streak
+AI Insights
+Weak subjects
+Most repeated topics
+Important exam chapters
+Revision reminders
+9. Enhanced UI/UX Requirements
+
+The app UI should feel like a premium AI study platform.
+
+Design inspiration:
+
+Notion
+ChatGPT
+Duolingo
+Quizlet
+Google Gemini
+
+UI Style:
+
+Glassmorphism
+Smooth gradients
+Modern animations
+Minimal design
+Dark mode support

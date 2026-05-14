@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -20,24 +20,34 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNotes } from "@/context/NotesContext";
 import { useColors } from "@/hooks/useColors";
 
-const SUBJECTS = ["General", "Mathematics", "Physics", "Chemistry", "Biology", "History", "Computer", "Economics", "Literature"];
+const PRESET_SUBJECTS = ["General", "Mathematics", "Physics", "Chemistry", "Biology", "History", "Computer Science", "Economics", "Literature"];
 const INPUT_TABS = ["Text", "Image"] as const;
-
 type InputTab = (typeof INPUT_TABS)[number];
 
 export default function UploadScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { saveNote, updateStreak } = useNotes();
+  const { saveNote, updateStreak, subjects } = useNotes();
+
+  const params = useLocalSearchParams<{ subjectId?: string; subjectName?: string }>();
 
   const [activeTab, setActiveTab] = useState<InputTab>("Text");
   const [noteText, setNoteText] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState("General");
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string | undefined>(params.subjectId);
+  const [customSubject, setCustomSubject] = useState(params.subjectName ?? "General");
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState("");
 
   const bottomInset = Platform.OS === "web" ? 34 : insets.bottom;
+
+  const getSubjectName = () => {
+    if (selectedSubjectId) {
+      const found = subjects.find((s) => s.id === selectedSubjectId);
+      if (found) return found.name;
+    }
+    return customSubject;
+  };
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -50,8 +60,11 @@ export default function UploadScreen() {
       quality: 0.8,
     });
     if (!result.canceled && result.assets[0]) {
-      Alert.alert("OCR Note", "Image selected! In this demo, please paste the text content manually in the Text tab. Full OCR coming soon.");
-      setActiveTab("Text");
+      Alert.alert(
+        "Image Selected",
+        "Please also paste the text content from your notes in the Text tab for AI processing. Full OCR coming soon.",
+        [{ text: "OK", onPress: () => setActiveTab("Text") }]
+      );
     }
   };
 
@@ -63,8 +76,11 @@ export default function UploadScreen() {
     }
     const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
     if (!result.canceled && result.assets[0]) {
-      Alert.alert("OCR Note", "Photo captured! In this demo, please paste the text content manually in the Text tab. Full OCR coming soon.");
-      setActiveTab("Text");
+      Alert.alert(
+        "Photo Captured",
+        "Please paste the text content from your notes in the Text tab for AI processing.",
+        [{ text: "OK", onPress: () => setActiveTab("Text") }]
+      );
     }
   };
 
@@ -79,7 +95,8 @@ export default function UploadScreen() {
 
     const steps = [
       "Analyzing your notes...",
-      "Generating summary...",
+      "Detecting topics & chapters...",
+      "Generating topic summaries...",
       "Creating MCQ questions...",
       "Building flashcards...",
       "Preparing viva questions...",
@@ -95,11 +112,12 @@ export default function UploadScreen() {
     try {
       const domain = process.env.EXPO_PUBLIC_DOMAIN;
       const baseUrl = domain ? `https://${domain}` : "";
+      const subjectName = getSubjectName();
 
       const response = await fetch(`${baseUrl}/api/ai/process`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ noteText: noteText.trim(), subject: selectedSubject }),
+        body: JSON.stringify({ noteText: noteText.trim(), subject: subjectName }),
       });
 
       clearInterval(interval);
@@ -115,10 +133,12 @@ export default function UploadScreen() {
       const note = {
         id: noteId,
         title: data.title || "My Notes",
-        subject: selectedSubject,
+        subject: subjectName,
+        subjectId: selectedSubjectId,
         noteText: noteText.trim(),
         createdAt: Date.now(),
         summary: data.summary,
+        topics: data.topics ?? [],
         mcqs: data.mcqs,
         flashcards: data.flashcards,
         vivaQuestions: data.vivaQuestions,
@@ -154,14 +174,11 @@ export default function UploadScreen() {
           {INPUT_TABS.map((tab) => (
             <Pressable
               key={tab}
-              style={[
-                styles.tab,
-                activeTab === tab && { backgroundColor: colors.primary },
-              ]}
+              style={[styles.tab, activeTab === tab && { backgroundColor: colors.primary }]}
               onPress={() => setActiveTab(tab)}
             >
               <Feather
-                name={tab === "Text" ? "type" : "image"}
+                name={tab === "Text" ? "type" : "camera"}
                 size={14}
                 color={activeTab === tab ? "#fff" : colors.mutedForeground}
               />
@@ -179,7 +196,7 @@ export default function UploadScreen() {
             <View style={[styles.textArea, { backgroundColor: colors.secondary, borderColor: noteText.length > 0 ? colors.primary : colors.border }]}>
               <TextInput
                 style={[styles.textInput, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
-                placeholder="Paste your study notes here... (minimum 50 characters)"
+                placeholder="Paste your study notes here... The AI will detect topics and chapters automatically. Minimum 50 characters."
                 placeholderTextColor={colors.mutedForeground}
                 value={noteText}
                 onChangeText={setNoteText}
@@ -188,7 +205,7 @@ export default function UploadScreen() {
               />
             </View>
             <Text style={[styles.charCount, { color: colors.mutedForeground }]}>
-              {noteText.length} characters {noteText.length < 50 ? `(${50 - noteText.length} more needed)` : ""}
+              {noteText.length} characters {noteText.length < 50 ? `(${50 - noteText.length} more needed)` : "✓"}
             </Text>
           </View>
         )}
@@ -215,37 +232,70 @@ export default function UploadScreen() {
                 <Text style={[styles.imageBtnDesc, { color: colors.mutedForeground }]}>Upload existing image</Text>
               </Pressable>
             </View>
-            <View style={[styles.ocrNote, { backgroundColor: colors.secondary, borderColor: colors.border }]}>
-              <Feather name="info" size={14} color={colors.mutedForeground} />
-              <Text style={[styles.ocrNoteText, { color: colors.mutedForeground }]}>
-                OCR text extraction available. After capturing, you can also paste text manually in the Text tab.
-              </Text>
-            </View>
           </View>
         )}
 
         {/* Subject Selector */}
         <View style={styles.section}>
-          <Text style={[styles.label, { color: colors.foreground }]}>Subject</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {SUBJECTS.map((s) => (
+          <View style={styles.labelRow}>
+            <Text style={[styles.label, { color: colors.foreground }]}>Subject</Text>
+            {subjects.length === 0 && (
+              <Pressable onPress={() => router.push("/create-subject")}>
+                <Text style={[styles.createSubjectLink, { color: colors.primary }]}>+ Create Subject</Text>
+              </Pressable>
+            )}
+          </View>
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
+            {/* My subjects first */}
+            {subjects.map((s) => (
+              <Pressable
+                key={s.id}
+                style={[
+                  styles.subjectChip,
+                  {
+                    backgroundColor: selectedSubjectId === s.id ? s.color : colors.secondary,
+                    borderColor: selectedSubjectId === s.id ? s.color : colors.border,
+                  },
+                ]}
+                onPress={() => { setSelectedSubjectId(s.id); setCustomSubject(s.name); }}
+              >
+                <Text style={styles.subjectChipEmoji}>{s.icon}</Text>
+                <Text style={[styles.subjectText, { color: selectedSubjectId === s.id ? "#fff" : colors.mutedForeground }]}>
+                  {s.name}
+                </Text>
+              </Pressable>
+            ))}
+
+            {/* Preset subjects */}
+            {PRESET_SUBJECTS.map((s) => (
               <Pressable
                 key={s}
                 style={[
                   styles.subjectChip,
                   {
-                    backgroundColor: selectedSubject === s ? colors.primary : colors.secondary,
-                    borderColor: selectedSubject === s ? colors.primary : colors.border,
+                    backgroundColor: !selectedSubjectId && customSubject === s ? colors.primary : colors.secondary,
+                    borderColor: !selectedSubjectId && customSubject === s ? colors.primary : colors.border,
                   },
                 ]}
-                onPress={() => setSelectedSubject(s)}
+                onPress={() => { setSelectedSubjectId(undefined); setCustomSubject(s); }}
               >
-                <Text style={[styles.subjectText, { color: selectedSubject === s ? "#fff" : colors.mutedForeground }]}>
+                <Text style={[styles.subjectText, { color: !selectedSubjectId && customSubject === s ? "#fff" : colors.mutedForeground }]}>
                   {s}
                 </Text>
               </Pressable>
             ))}
           </ScrollView>
+
+          {subjects.length > 0 && (
+            <Pressable
+              style={[styles.createSubjectBtn, { borderColor: colors.border }]}
+              onPress={() => router.push("/create-subject")}
+            >
+              <Feather name="plus" size={14} color={colors.primary} />
+              <Text style={[styles.createSubjectBtnText, { color: colors.primary }]}>Create New Subject</Text>
+            </Pressable>
+          )}
         </View>
 
         {/* What AI generates */}
@@ -253,7 +303,7 @@ export default function UploadScreen() {
           <Text style={[styles.label, { color: colors.foreground }]}>AI will generate</Text>
           <View style={styles.aiFeatures}>
             {[
-              { icon: "file-text" as const, label: "Smart Summary", color: "#6C63FF" },
+              { icon: "list" as const, label: "Topic-Wise Summary", color: "#6C63FF" },
               { icon: "check-circle" as const, label: "MCQ Questions", color: "#00C9A7" },
               { icon: "layers" as const, label: "Flashcards", color: "#FF9800" },
               { icon: "mic" as const, label: "Viva Questions", color: "#E91E63" },
@@ -310,23 +360,27 @@ const styles = StyleSheet.create({
   tabText: { fontSize: 13, fontFamily: "Inter_600SemiBold" },
   section: { paddingHorizontal: 16, marginBottom: 20 },
   label: { fontSize: 14, fontFamily: "Inter_600SemiBold", marginBottom: 10 },
+  labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
+  createSubjectLink: { fontSize: 13, fontFamily: "Inter_600SemiBold" },
   textArea: { borderRadius: 12, borderWidth: 1.5, minHeight: 200, padding: 14 },
   textInput: { fontSize: 14, lineHeight: 22, minHeight: 180 },
   charCount: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 6, textAlign: "right" },
   imageButtons: { flexDirection: "row", gap: 10 },
-  imageBtn: {
-    flex: 1, borderRadius: 14, borderWidth: 1,
-    padding: 20, alignItems: "center", gap: 8,
-  },
+  imageBtn: { flex: 1, borderRadius: 14, borderWidth: 1, padding: 20, alignItems: "center", gap: 8 },
   imageBtnLabel: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
   imageBtnDesc: { fontSize: 12, fontFamily: "Inter_400Regular", textAlign: "center" },
-  ocrNote: {
-    flexDirection: "row", gap: 8, alignItems: "flex-start",
-    borderRadius: 10, borderWidth: 1, padding: 12, marginTop: 12,
+  subjectChip: {
+    flexDirection: "row", alignItems: "center", gap: 6,
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, marginRight: 8,
   },
-  ocrNoteText: { flex: 1, fontSize: 12, fontFamily: "Inter_400Regular", lineHeight: 17 },
-  subjectChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, marginRight: 8 },
+  subjectChipEmoji: { fontSize: 14 },
   subjectText: { fontSize: 13, fontFamily: "Inter_500Medium" },
+  createSubjectBtn: {
+    flexDirection: "row", alignItems: "center", gap: 6,
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10,
+    borderWidth: 1, borderStyle: "dashed", alignSelf: "flex-start", marginTop: 6,
+  },
+  createSubjectBtnText: { fontSize: 13, fontFamily: "Inter_500Medium" },
   aiFeatures: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   aiFeature: {
     flexDirection: "row", alignItems: "center", gap: 6,

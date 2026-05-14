@@ -8,11 +8,13 @@
 import type { FlashcardItem } from "./flashcardItem";
 import type { MCQItem } from "./mCQItem";
 import type { SummaryData } from "./summaryData";
+import type { TopicSummaryItem } from "./topicSummaryItem";
 import type { VivaItem } from "./vivaItem";
 
 export interface ProcessNotesResult {
   title: string;
   summary: SummaryData;
+  topics: TopicSummaryItem[];
   mcqs: MCQItem[];
   flashcards: FlashcardItem[];
   vivaQuestions: VivaItem[];

@@ -17,8 +17,10 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AnalyzePyqBody,
   ErrorResponse,
   HealthStatus,
+  PYQAnalysisResult,
   ProcessNotesBody,
   ProcessNotesResult,
 } from "./api.schemas";
@@ -33,7 +35,6 @@ type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const getHealthCheckUrl = () => {
@@ -109,7 +110,6 @@ export function useHealthCheck<
 }
 
 /**
- * Generates summary, MCQs, flashcards, and viva questions from notes
  * @summary Process notes with AI
  */
 export const getProcessNotesUrl = () => {
@@ -193,4 +193,90 @@ export const useProcessNotes = <
   TContext
 > => {
   return useMutation(getProcessNotesMutationOptions(options));
+};
+
+/**
+ * @summary Analyze previous year question papers
+ */
+export const getAnalyzePyqUrl = () => {
+  return `/api/ai/analyze-pyq`;
+};
+
+export const analyzePyq = async (
+  analyzePyqBody: AnalyzePyqBody,
+  options?: RequestInit,
+): Promise<PYQAnalysisResult> => {
+  return customFetch<PYQAnalysisResult>(getAnalyzePyqUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(analyzePyqBody),
+  });
+};
+
+export const getAnalyzePyqMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof analyzePyq>>,
+    TError,
+    { data: BodyType<AnalyzePyqBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof analyzePyq>>,
+  TError,
+  { data: BodyType<AnalyzePyqBody> },
+  TContext
+> => {
+  const mutationKey = ["analyzePyq"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof analyzePyq>>,
+    { data: BodyType<AnalyzePyqBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return analyzePyq(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AnalyzePyqMutationResult = NonNullable<
+  Awaited<ReturnType<typeof analyzePyq>>
+>;
+export type AnalyzePyqMutationBody = BodyType<AnalyzePyqBody>;
+export type AnalyzePyqMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Analyze previous year question papers
+ */
+export const useAnalyzePyq = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof analyzePyq>>,
+    TError,
+    { data: BodyType<AnalyzePyqBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof analyzePyq>>,
+  TError,
+  { data: BodyType<AnalyzePyqBody> },
+  TContext
+> => {
+  return useMutation(getAnalyzePyqMutationOptions(options));
 };
